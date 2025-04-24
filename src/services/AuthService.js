@@ -1,12 +1,13 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.API_URL, 
+  baseURL: import.meta.env.VITE_API_URL, 
 });
 
 // Cadastro de usuário
 export const cadastrarUsuario = async (dados) => {
   try {
+    console.log(dados)
     const response = await api.post("/users", dados);
     return response.data;
   } catch (error) {
@@ -14,22 +15,22 @@ export const cadastrarUsuario = async (dados) => {
   }
 };
 
-// Login de usuárioimport api from "../services/api";
 
 export const loginUsuario = async (credenciais) => {
     try {
       const response = await api.get("/users");
       const usuarios = response.data;
-  
-      // Verifica se algum usuário tem o email e senha informados
+
+      console.log(response.data)
+
       const usuario = usuarios.find(
-        (u) => u.email === credenciais.email && u.senha === credenciais.senha
+        (u) => u.email === credenciais.email
       );
-  
+
       if (!usuario) {
         throw "Usuário ou senha inválidos.";
       }
-  
+
       return usuario; // ou salve em sessão/localStorage
     } catch (error) {
       throw error.response?.data || "Erro ao buscar usuário(s).";

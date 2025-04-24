@@ -29,7 +29,7 @@ export default function Login() {
       if (usuario.id === 1){
         localStorage.setItem("admin", true)
       }
-      localStorage.setItem("user", usuario.nome);
+      localStorage.setItem("user", usuario.name);
       localStorage.setItem("usuarioId", usuario.id);
 
       navigate("/home"); // Substitua "/home" com o caminho que deseja redirecionar após o login
@@ -42,16 +42,12 @@ export default function Login() {
 
   return (
     <div className="bg-rosa min-h-screen flex items-center justify-center">
-      {/* Container de Login */}
       <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
-        {/* Cabeçalho */}
         <h1 className="text-center text-3xl font-semibold text-baby-blue mb-8">
           Acesse sua conta
         </h1>
 
-        {/* Formulário de Login */}
         <form onSubmit={handleSubmit}>
-          {/* Campo de E-mail */}
           <div className="mb-6">
             <label
               className="block text-lavender font-medium mb-2"

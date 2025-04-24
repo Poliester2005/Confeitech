@@ -39,7 +39,7 @@ const DetalhesBolo = () => {
 
     try {
       // Chama o serviço para registrar o pedido
-      const pedidoCriado = await criarEncomenda(bolo.id, usuarioId, dataRetirada);
+      const pedidoCriado = await criarEncomenda(bolo.id, usuarioId, dataRetirada, bolo.preco);
       alert("Pedido realizado com sucesso!");
       navigate("/"); // Redireciona para a página principal após o sucesso
     } catch (error) {
@@ -55,21 +55,20 @@ const DetalhesBolo = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <img
               src={bolo.image}
-              alt={bolo.name}
+              alt={bolo.nome}
               className="w-full md:w-1/2 rounded-xl object-cover"
             />
             <div className="flex flex-col justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-[#702f26]">
-                  {bolo.name}
+                  {bolo.nome}
                 </h2>
                 <p className="text-[#FFCC00] text-xl font-semibold mt-2">
-                  {/* Verifique se bolo.price está disponível antes de usar toFixed */}
-                  {bolo.price ? `R$ ${bolo.price.toFixed(2)}` : "Preço não disponível"}
+                  {/* Verifique se bolo.preco está disponível antes de usar toFixed */}
+                  {bolo.preco ? `R$ ${bolo.preco.toFixed(2)}` : "Preço não disponível"}
                 </p>
                 <p className="mt-4 text-gray-700">
-                  Este bolo é feito com ingredientes selecionados para garantir
-                  o sabor e a qualidade.
+                  {bolo.descricao}
                 </p>
               </div>
               <form

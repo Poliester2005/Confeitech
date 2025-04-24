@@ -2,19 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import CardBolos from "../components/CardBolos";
-import { getBolos, addBolo } from "../services/CakeService"; // Importe o serviço de bolos
+import { getBolos, addBolo } from "../services/CakeService";
 
 const Cardapio = () => {
   const navigate = useNavigate();
 
-  const [bolos, setBolos] = useState([]); // Estado para armazenar os bolos
+  const [bolos, setBolos] = useState([]);
   const [error, setError] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [newBolo, setNewBolo] = useState({ name: "", price: "", image: "" });
 
-  const isAdmin = sessionStorage.getItem("admin");
+  const isAdmin = localStorage.getItem("admin");
 
-  // Carregar bolos da API
   useEffect(() => {
     const fetchBolos = async () => {
       try {
@@ -31,13 +30,13 @@ const Cardapio = () => {
   const destaque = bolos[0];
   const outros = bolos.slice(1);
 
-  // Função para adicionar novo bolo via API
   const addNewBolo = async () => {
     try {
       const novoBolo = {
-        name: newBolo.nome,
-        price: parseFloat(newBolo.preco),
-        image: newBolo.imagem,
+        nome: newBolo.name,
+        preco: parseFloat(newBolo.price),
+        descricao: newBolo.description,
+        adicionais: [],
       };
       const boloAdicionado = await addBolo(novoBolo);
       setBolos([...bolos, boloAdicionado]);
@@ -51,7 +50,7 @@ const Cardapio = () => {
   return (
     <>
       <NavBar />
-      {/* Botão admin no topo */}
+
       {isAdmin && (
         <div className="w-full flex justify-end px-6 pt-6 bg-card">
           <button
@@ -62,7 +61,8 @@ const Cardapio = () => {
           </button>
         </div>
       )}
-      {/* Destaque */}
+
+      {/* Destaque da Semana */}
       <section className="w-full px-6 py-10 flex flex-col items-center bg-card">
         <h2 className="text-3xl font-bold text-backGround mb-6">
           Destaque da Semana
@@ -71,20 +71,21 @@ const Cardapio = () => {
           <div className="flex flex-col md:flex-row bg-white rounded-3xl shadow-xl overflow-hidden w-full max-w-5xl">
             <img
               src={destaque.image}
-              alt={destaque.name}
+              alt={destaque.nome}
               className="w-full md:w-1/2 h-80 object-cover"
             />
             <div className="p-6 flex flex-col justify-center items-center md:items-start text-center md:text-left gap-3">
               <h3 className="text-2xl font-bold text-[#702f26]">
-                {destaque.name}
+                {destaque.nome}
               </h3>
-              {/* Verificação para garantir que price não seja undefined */}
               <p className="text-[#FFCC00] text-xl font-semibold">
-                R$ {destaque.price ? destaque.price.toFixed(2) : "0.00"}
+                R${" "}
+                {typeof destaque?.preco === "number"
+                  ? destaque.preco.toFixed(2)
+                  : "0.00"}
               </p>
-              <p className="text-gray-600">
-                O favorito dos nossos clientes! Uma explosão de sabor.
-              </p>
+
+              <p className="text-gray-600">{destaque.descricao}</p>
               <button
                 onClick={() =>
                   navigate("/detalhes", { state: { bolo: destaque } })
@@ -96,22 +97,23 @@ const Cardapio = () => {
             </div>
           </div>
         ) : (
-          <p>Carregando destaque...</p> // Caso o destaque não esteja disponível
+          <p>Carregando destaque...</p>
         )}
       </section>
+
+      {/* Lista de outros bolos */}
       <section className="w-full px-6 py-10 bg-white">
         <h2 className="text-2xl font-bold text-button mb-6 text-center">
           Outros Bolos
         </h2>
         <div className="flex flex-wrap justify-center gap-6">
-          {/* Verifica se 'outros' é um array antes de usar .map() */}
           {Array.isArray(outros) && outros.length > 0 ? (
             outros.map((bolo) => (
               <CardBolos
                 key={bolo.id}
                 image={bolo.image}
-                name={bolo.name}
-                price={bolo.price}
+                name={bolo.nome}
+                price={bolo.preco}
                 onClick={() => navigate("/detalhes", { state: { bolo } })}
               />
             ))
@@ -120,7 +122,8 @@ const Cardapio = () => {
           )}
         </div>
       </section>
-      {/* Modal */}
+
+      {/* Modal para adicionar novo bolo */}
       {modalAberto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-3xl shadow-xl p-6 w-full max-w-lg relative">
@@ -149,14 +152,14 @@ const Cardapio = () => {
               }
               className="w-full p-2 border-2 border-gray-300 rounded-lg mb-4"
             />
-            <input
-              type="url"
-              placeholder="URL da Imagem"
-              value={newBolo.image}
+            <textarea
+              placeholder="Descrição do Bolo"
+              value={newBolo.description}
               onChange={(e) =>
-                setNewBolo({ ...newBolo, image: e.target.value })
+                setNewBolo({ ...newBolo, description: e.target.value })
               }
-              className="w-full p-2 border-2 border-gray-300 rounded-lg mb-4"
+              className="w-full p-2 border-2 border-gray-300 rounded-lg mb-4 resize-none"
+              rows={4}
             />
             <button
               onClick={addNewBolo}

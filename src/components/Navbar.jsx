@@ -8,15 +8,8 @@ const NavBar = () => {
   const [admin, setAdmin] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedAdmin = localStorage.getItem("admin");
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    if (storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
-    }
+    setUser(localStorage.getItem("user"));
+    setAdmin(localStorage.getItem("admin"));
   }, []);
 
   const adminRoutes = [
@@ -34,9 +27,13 @@ const NavBar = () => {
   const routes = admin ? adminRoutes : clientRoutes;
 
   const handleLogin = () => {
-    // Redireciona para a tela de login
     navigate("/login");
   };
+
+  const handleLogout =() => {
+    localStorage.clear()
+    navigate("/")
+  }
 
   return (
     <nav className="relative w-full h-[20vh] bg-[#f5f5f5] shadow-[0_3px_4px_0_rgba(0,0,0,0.2)]">
@@ -44,7 +41,15 @@ const NavBar = () => {
       <div className="absolute top-2 right-4">
         {user ? (
           <div className="flex flex-col items-end">
-            <span className="text-[#702f26] font-semibold text-sm">{user.name}</span>
+            <span className="text-[#702f26] font-semibold text-sm">
+              {user}
+            </span>
+            <button
+            onClick={handleLogout}
+            className="bg-[#702f26] text-white px-4 py-1 rounded-lg text-sm hover:bg-[#8e3a2d] transition"
+          >
+            Logout
+          </button>
           </div>
         ) : (
           <button

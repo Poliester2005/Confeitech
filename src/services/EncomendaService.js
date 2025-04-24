@@ -1,65 +1,94 @@
 import axios from 'axios';
 
-// Recuperar a URL da API a partir da variável de ambiente
-const API_URL = import.meta.env.API_URL;
+// Criação da instância Axios com baseURL da variável de ambiente
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
-// Criação de encomenda
-export const criarEncomenda = async (boloId, usuarioId, dataRetirada) => {
+// Criação de uma nova encomenda
+export const criarEncomenda = async (boloId, usuarioId, dataRetirada, preco) => {
   const pedido = {
-    boloId,
-    usuarioId,
-    dataCriacao: new Date().toISOString(), // Data de criação
-    dataRetirada, // Data de retirada
-    andamento: 'AGUARDANDO', // Status inicial do pedido
+    bolo: boloId,
+    user: parseInt(usuarioId),
+    dataRetirada,
+    preco,
+    observacoes: "",
+    peso: 2
   };
-
+  
   try {
-    // Envia a requisição para a API
-    const response = await axios.post(`${API_URL}/encomendas`, pedido);
+    const response = await api.post('/encomendas', pedido);
     return response.data;
   } catch (error) {
-    console.error("Erro ao registrar o pedido:", error);
-    throw error; // Propaga o erro para ser tratado no componente
+    console.error("Erro ao registrar o pedido:", error.response?.data || error.message);
+    throw new Error("Erro ao registrar o pedido.");
   }
 };
 
-export const buscarPedidos = async () => {
+export const buscarEncomendaUser = async (id) => {
   try {
-    // Requisição para obter todos os pedidos da API
-    const response = await axios.get(`${API_URL}/pedidos`);
-    
-    // Filtra os pedidos com o status 'AGUARDANDO'
-    const pedidos = response.data;
+    const response = await api.get(`/encomendas/user/${id}`);
+    const encomenda = response.data;
 
-    const pedidosPendentes = pedidos.filter((pedido) => pedido.andamento === 'AGUARDANDO');
-    const pedidosAceitos = pedidos.filter((pedido) => pedido.andamento !== 'AGUARDANDO');
+  console.log(response)
 
-    return { pedidosPendentes, pedidosAceitos };
+    return encomenda
   } catch (error) {
-    console.error("Erro ao buscar os pedidos:", error);
-    throw error; // Propaga o erro para ser tratado no componente
+    console.error("Erro ao buscar os Encomenda:", error.response?.data || error.message);
+    throw new Error("Erro ao buscar os Encomenda.");
   }
 };
 
-// Função para aceitar um pedido
-export const aceitarPedido = async (id) => {
+export const buscarEncomenda = async () => {
   try {
-    const response = await axios.put(`${API_URL}/pedidos/${id}`, { andamento: 'Pronto para entrega' });
+    const response = await api.get('/encomendas');
+    const encomendas = response.data;
+
+    const pedidosPendentes = encomendas.filter(e => e.andamento === 'AGUARDANDO');
+    const pedidosAceitos = encomendas.filter(e => e.andamento !== 'AGUARDANDO');
+
+    return {
+      pedidosPendentes,
+      pedidosAceitos,
+    };
+  } catch (error) {
+    console.error("Erro ao buscar as encomendas:", error.response?.data || error.message);
+    throw new Error("Erro ao buscar as encomendas.");
+  }
+};
+
+
+
+
+// Atualizar o status do pedido
+export const atualizarAndamentoEncomenda = async (id, novoAndamento) => {
+  try {
+    const response = await api.patch(`/encomendas/${id}`, { andamentoEncomenda: novoAndamento });
     return response.data;
   } catch (error) {
-    console.error("Erro ao aceitar o pedido:", error);
-    throw error;
+    console.error(`Erro ao atualizar o Encomenda ${id}:`, error.response?.data || error.message);
+    throw new Error("Erro ao atualizar o Encomenda.");
   }
 };
 
-// Função para cancelar um pedido
-export const cancelarPedido = async (id) => {
+export const cancelarEncomendaLogica = async (id) => {
   try {
-    const response = await axios.put(`${API_URL}/pedidos/${id}`, { andamento: 'Cancelado' });
+    // Aqui você altera o status da encomenda para "Cancelado" ou qualquer outro que defina como "deletado"
+    const response = await api.patch(`/encomendas/${id}`, { andamentoEncomenda: "CANCELADA" });
     return response.data;
   } catch (error) {
-    console.error("Erro ao cancelar o pedido:", error);
-    throw error;
+    console.error(`Erro ao cancelar a encomenda com id ${id}:`, error.response?.data || error.message);
+    throw new Error("Erro ao cancelar a encomenda.");
   }
 };
 
+
+// Aceitar pedido
+export const aceitarEncomenda = async (id) => {
+  return await atualizarAndamentoEncomenda(id, 'EM_PREPARO');
+};
+
+// Cancelar Encomenda
+export const cancelarEncomenda = async (id) => {
+  return await atualizarAndamentoEncomenda(id, 'CANCELADA');
+};
