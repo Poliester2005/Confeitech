@@ -15,7 +15,7 @@ const NavBar = () => {
   const adminRoutes = [
     { path: "/encomendas", label: "Encomendas" },
     { path: "/cardapio", label: "Cardápio" },
-    { path: "/relatorioAdmin", label: "Relatórios" },
+    { path: "/dashboard", label: "Relatórios" },
   ];
 
   const clientRoutes = [

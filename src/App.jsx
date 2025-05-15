@@ -7,6 +7,7 @@ import Cadastro from "./Pages/Cadastro";
 import Pedidos from "./Pages/Pedidos";
 import Encomendas from "./Pages/Encomendas";
 import DetalhesEncomenda from "./Pages/DetalhesEncomenda";
+import Dashboard from "./Pages/Dashboard";
 
 function App() {
   return (
@@ -20,7 +21,8 @@ function App() {
         <Route path="/pedidos" element={<Pedidos />} />
         <Route path="/detalhes" element={<DetalhesBolo />} />
         <Route path="/encomendas" element={<Encomendas />} />
-        <Route path="/detalhesEncomendas" element={<DetalhesEncomenda/>}/>
+        <Route path="/detalhesEncomendas" element={<DetalhesEncomenda />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
   );
