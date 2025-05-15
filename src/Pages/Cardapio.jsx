@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/Navbar";
 import CardBolos from "../components/CardBolos";
-import { getBolos, addBolo } from "../services/CakeService";
+import { getBolos, addBolo, deleteBolo } from "../services/CakeService";
 
 const Cardapio = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Cardapio = () => {
   const [bolos, setBolos] = useState([]);
   const [error, setError] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
-  const [newBolo, setNewBolo] = useState({ name: "", price: "", image: "" });
+  const [newBolo, setNewBolo] = useState({ name: "", price: "", image: "", description: "" });
 
   const isAdmin = localStorage.getItem("admin");
 
@@ -36,14 +36,24 @@ const Cardapio = () => {
         nome: newBolo.name,
         preco: parseFloat(newBolo.price),
         descricao: newBolo.description,
+        image: newBolo.image,
         adicionais: [],
       };
       const boloAdicionado = await addBolo(novoBolo);
       setBolos([...bolos, boloAdicionado]);
-      setNewBolo({ name: "", price: "", image: "" });
+      setNewBolo({ name: "", price: "", image: "", description: "" });
       setModalAberto(false);
     } catch (error) {
       setError(error || "Erro ao adicionar bolo.");
+    }
+  };
+
+  const handleDeleteBolo = async (id) => {
+    try {
+      await deleteBolo(id);
+      setBolos(bolos.filter((bolo) => bolo.id !== id));
+    } catch (error) {
+      setError(error || "Erro ao deletar bolo.");
     }
   };
 
@@ -109,13 +119,22 @@ const Cardapio = () => {
         <div className="flex flex-wrap justify-center gap-6">
           {Array.isArray(outros) && outros.length > 0 ? (
             outros.map((bolo) => (
-              <CardBolos
-                key={bolo.id}
-                image={bolo.image}
-                name={bolo.nome}
-                price={bolo.preco}
-                onClick={() => navigate("/detalhes", { state: { bolo } })}
-              />
+              <div key={bolo.id} className="relative">
+                <CardBolos
+                  image={bolo.image}
+                  name={bolo.nome}
+                  price={bolo.preco}
+                  onClick={() => navigate("/detalhes", { state: { bolo } })}
+                />
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDeleteBolo(bolo.id)}
+                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             ))
           ) : (
             <p className="text-center text-gray-500">Nenhum bolo disponível.</p>
@@ -149,6 +168,15 @@ const Cardapio = () => {
               value={newBolo.price}
               onChange={(e) =>
                 setNewBolo({ ...newBolo, price: e.target.value })
+              }
+              className="w-full p-2 border-2 border-gray-300 rounded-lg mb-4"
+            />
+            <input
+              type="text"
+              placeholder="URL da Imagem"
+              value={newBolo.image}
+              onChange={(e) =>
+                setNewBolo({ ...newBolo, image: e.target.value })
               }
               className="w-full p-2 border-2 border-gray-300 rounded-lg mb-4"
             />
